@@ -3,6 +3,7 @@ import FirebaseConnector from './db/FirebaseConnector';
 class ScoreManager{
 
     static NUM_HIGH_SCORES = 10;
+    static HS_KEY = "newScore";
 
     constructor() {
         this.CONNECTOR = FirebaseConnector;
@@ -22,8 +23,14 @@ class ScoreManager{
     }
 
     isHighScore(newScore){
+        if(this.currentScores.length < ScoreManager.NUM_HIGH_SCORES){
+            return true;
+        }
         const slowestScore = this.currentScores[this.currentScores.length-1];
-        return newScore < slowestScore.score ? true : false;
+        if(newScore < slowestScore.score){
+            return true;
+        }
+        return false
     }
 
     async deleteExcessScores(){
@@ -42,16 +49,19 @@ class ScoreManager{
     insertScore(newScore){
         // inserts new score with temp id of "newScore"
         const newScoreObject = {
-            id: "newScore",
+            id: ScoreManager.HS_KEY,
             score: newScore,
             name : ""
         }
-        let indexToInsert;
+        let indexToInsert = null;
         for(let i = 0; i < this.currentScores.length; i++){
             if(newScore < this.currentScores[i].score){
                 indexToInsert = i;
                 break;
             }
+        }
+        if(indexToInsert === null && this.currentScores.length < ScoreManager.NUM_HIGH_SCORES){
+            indexToInsert = this.currentScores.length;
         }
         this.currentScores.splice(indexToInsert, 0, newScoreObject);
     }

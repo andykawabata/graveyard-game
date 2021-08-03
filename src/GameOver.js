@@ -7,7 +7,7 @@ function GameOver(props){
 
     const [newScore, setNewScore] = useState(props.finalScore);
     const [isNewHigh, setIsNewHigh] = useState(false);
-    const [currentScores, setCurrentScores] = useState();
+    const [currentScores, setCurrentScores] = useState([]);
     const [name, setName] = useState("");
 
     useEffect(() => {
@@ -16,14 +16,13 @@ function GameOver(props){
             await sm.loadScoreObjects();
             sm.sortScores();
             await sm.deleteExcessScores();
-            setCurrentScores(sm.currentScores);
             if(sm.isHighScore(newScore)){
                 setIsNewHigh(newScore)
                 sm.insertScore(newScore);// inserts new score with temp id of "newScore"
-                setCurrentScores(sm.currentScores); //currentScores will have one extra score, but leaderboard takes care of not rendering it
             }
+            setCurrentScores(sm.currentScores);
+            props.setLoading(false)
         }
-
         handleLoad()
         
     }, []);
@@ -60,19 +59,20 @@ function GameOver(props){
                 {isNewHigh ?  
                 <div>
                     <h1>New High Score!</h1>
-                    <h2>{newScore} seconds</h2>
+                    <h2>{newScore.toFixed(2)} seconds</h2>
                     <p>Enter Your Name:</p>
-                    <LeaderBoard scores={currentScores}/>
                     <form onSubmit={handleSubmit} className="input-form">
-                        <input type="text" name="nameInput" onChange={handleChange}></input>
-                        <input type="submit"></input>
+                        <input type="text" name="nameInput" maxLength="18np" onChange={handleChange}></input>
+                        <input className="button" type="submit"></input>
                     </form>
+                    <LeaderBoard scores={currentScores}/>
+                    
                 </div>
                 :
                 <div>
                     <h1>Finished</h1>
                     <h2>{newScore} seconds</h2>
-                    <button onClick={props.startGame}>New Game</button>
+                    <button className="button" onClick={props.startGame}>Play Again</button>
                     <LeaderBoard scores={currentScores}/>
                 </div>
                 }

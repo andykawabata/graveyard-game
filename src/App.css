@@ -3,11 +3,71 @@
   align-items: center;
 }
 
+
 .content-container{
   text-align: center;
   margin-top: 75px;
 }
 
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 10px 25px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+#directions{
+  font-size: 1rem;
+  max-width: 400px;
+  margin: 0 auto 15px auto;
+  text-align: left;
+}
+
+.input-form{
+  margin-bottom: 25px;
+}
+
 .alert-text{
   color: red;
+}
+
+#leaderboard{
+  margin-top: 15px;
+}
+
+input {
+  font-size: 20px !important; 
+  }
+
+#answerInput{
+  display: block;
+  margin: 3px auto;
+}
+
+#clock{
+  font-family: Monaco;
+  margin: 5px 0;
+  font-size: .8rem;
+}
+
+table{
+  font-family: Monaco;
+  text-align: left;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 400px;
+}
+
+td {
+  border: 1px solid black;
+  padding: 3px 10px;
+}
+
+.highlight{
+  background:lightcoral;
 }

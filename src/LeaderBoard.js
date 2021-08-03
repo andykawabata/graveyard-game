@@ -1,26 +1,28 @@
 import { useEffect } from "react";
+import ScoreManager from "./ScoreManager";
 
 function LeaderBoard(props){
 
-    useEffect(()=>{
-    })
+    const scoreTable = props.scores.map((scoreObj, index) => {
+        if(index < ScoreManager.NUM_HIGH_SCORES){
+            let className = scoreObj.id === ScoreManager.HS_KEY ? "highlight" : null;
+            return (
+                <tr className={className} key={scoreObj.id}>
+                    <td>{index+1}</td>
+                    <td>{scoreObj.name}</td>
+                    <td>{scoreObj.score.toFixed(2)} s</td>
+                </tr>
+                )
+        }
+    }) ;
 
-    const scoreTable = props.scores ? props.scores.map((scoreObj, index) => {
-        <div>
-            <span>{index+1} </span>
-            <span>{scoreObj.name} </span>
-            <span>{scoreObj.score}</span>
-        </div>
-    }) : null;
-    console.log(scoreTable)
     return(
-        <div>
-            {props.scores ?
-                scoreTable
-                :
-                null
-            }
-        </div>
+        <table id="leaderboard" border="1" cellpadding="0" cellspacing="0">
+            <caption style={{paddingBottom: "2px"}}><b>Leaderboard</b></caption>
+            <tbody>
+                {scoreTable}
+            </tbody>
+        </table>
     )
 }
 

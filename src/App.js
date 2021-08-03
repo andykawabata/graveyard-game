@@ -1,13 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './App.css';
 import db from './db/db';
 import FirebaseConnector from './db/FirebaseConnector';
 import ScoreManager from './ScoreManager';
 import GameOver from './GameOver';
+import LeaderBoard from './LeaderBoard';
+import Clock from './Clock'
+
 
 function App() {
 
-  const TOTAL_QUESTIONS = 1;
+  const TOTAL_QUESTIONS = 5;
   const EARLIEST = 1750;
   const LATEST = 1980
 
@@ -26,20 +29,40 @@ function App() {
     pageIndex: pageIndex.START_SCREEN
   }
 
-
-
   const [state, setState] = useState(initialState);
   const [startTime, setStartTime] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentScores, setCurrentScores] = useState([])
+  const inputElement = useRef(null);
 
   useEffect(() => {
-    
+      if(inputElement.current && state.pageIndex === pageIndex.IN_GAME){
+        inputElement.current.focus();
+      }
+  }, [loading]);
+
+  useEffect(() => {
+    // load scores for leader board
+    async function loadAndSetScores(){
+      let sm = new ScoreManager();
+      await sm.loadScoreObjects();
+      sm.sortScores();
+      setCurrentScores(sm.currentScores);
+      setLoading(false);
+    }
+    loadAndSetScores()
   }, []);
 
+  
+
   async function startGame(){
+    setLoading(true);
+    setStartTime(new Date().getTime());
     setState({...initialState, 
       questions: await loadQuestions(),
       pageIndex: pageIndex.IN_GAME});
-    setStartTime(new Date().getTime());
+    setLoading(false);
+    
   }
 
   async function loadQuestions(){
@@ -114,13 +137,13 @@ function App() {
         pageIndex: pageIndex.GAME_OVER,
         finalScore: (stopTime - startTime) / 1000
       });
+      setLoading(true)
       e.target.numberInput.value = ""; //clear input field
       return
     }
     else if(answerIsCorrect(state.currentInput)){
       newState = {
         prevAnswer: null,
-        //currentQuestion: generateNewQuestion(),
         questionNumber: state.questionNumber + 1
       }
     }
@@ -136,7 +159,6 @@ function App() {
 
   function answerIsCorrect(){
     let correctAnswer = state.questions[state.questionNumber-1].end - state.questions[state.questionNumber-1].start;
-    console.log(correctAnswer);
     let attempt = parseInt(state.currentInput);   
     return attempt === correctAnswer ? true : false;
   }
@@ -146,9 +168,10 @@ function App() {
   let from = state.questions ? state.questions[state.questionNumber-1].start : null;
   let to = state.questions ? state.questions[state.questionNumber-1].end : null;
   let name = state.questions ? state.questions[state.questionNumber-1].name : null;
+  let loadingStyle = loading ? {display: "none"} : null;
 
   return (
-    <div className="App">
+    <div className="App" style={loadingStyle}>
       <div className="content-container">
         {
         state.pageIndex === pageIndex.IN_GAME ?
@@ -156,20 +179,23 @@ function App() {
           <p>{name}</p>
           <p>{from} - {to}</p>
           <form onSubmit={handleSubmit} className="input-form">
-            <input type="text" name="numberInput" onChange={handleChange}></input>
-            <input type="submit"></input>
+            <input type="text" name="numberInput" id="answerInput" onChange={handleChange} ref={inputElement} inputMode="numeric"></input>
+            <input className="button" type="submit"></input>
           </form>
-          <p>Question {state.questionNumber} of {TOTAL_QUESTIONS}</p>
-          <p className="alert-text">{ state.prevAnswer ? (state.prevAnswer+" is Incorrect. Try again.") : ""}</p>
+          <span>Question {state.questionNumber} of {TOTAL_QUESTIONS}</span>
+          {startTime ? <Clock startTime={startTime} /> : null}
+          <p className="alert-text">{ state.prevAnswer ? (state.prevAnswer+" is Incorrect. Try again.") : " "}</p>
         </div>
         : 
         state.pageIndex === pageIndex.START_SCREEN  ? 
         <div>
           <h1>Welcome</h1>
-          <button onClick={startGame}>Start Game</button>
+          <p id="directions"><b>Directions: </b>You will be presented with 5 'headstones'. Calcualte how many years each person lived. Do it as quickly as you can!</p>
+          <button className="button" onClick={startGame}>Start Game</button>
+          <LeaderBoard scores={currentScores}/>
         </div>
         : 
-        <GameOver startGame={startGame} finalScore={state.finalScore}/>
+        <GameOver startGame={startGame} setLoading={setLoading} finalScore={state.finalScore}/>
         
         }
       </div>
