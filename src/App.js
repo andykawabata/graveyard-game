@@ -1,31 +1,44 @@
 import { useState, useEffect } from 'react';
 import './App.css';
+import db from './db/db';
+import FirebaseConnector from './db/FirebaseConnector';
+import ScoreManager from './ScoreManager';
+import GameOver from './GameOver';
 
 function App() {
 
-  const TOTAL_QUESTIONS = 3;
+  const TOTAL_QUESTIONS = 1;
   const EARLIEST = 1750;
   const LATEST = 1980
+
+  const pageIndex = {
+    START_SCREEN: 0,
+    IN_GAME: 1,
+    GAME_OVER: 2
+  }
 
   const initialState = {
     questionNumber: 1,
     currentInput: "",
     questions: null,
     prevAnswer: null,
-    gameOver: false,
-    startScreen: null,
-    finalScore: null
+    finalScore: null,
+    pageIndex: pageIndex.START_SCREEN
   }
+
+
 
   const [state, setState] = useState(initialState);
   const [startTime, setStartTime] = useState(null);
 
   useEffect(() => {
-    setState({...state, startScreen: true});
+    
   }, []);
 
   async function startGame(){
-    setState({...initialState, questions: await loadQuestions()})
+    setState({...initialState, 
+      questions: await loadQuestions(),
+      pageIndex: pageIndex.IN_GAME});
     setStartTime(new Date().getTime());
   }
 
@@ -98,7 +111,7 @@ function App() {
     if(checkGameOver()){
       let stopTime = new Date().getTime();
       setState({...initialState, 
-        gameOver: true,
+        pageIndex: pageIndex.GAME_OVER,
         finalScore: (stopTime - startTime) / 1000
       });
       e.target.numberInput.value = ""; //clear input field
@@ -130,17 +143,18 @@ function App() {
 
 
 
-  //let from = state.currentQuestion ? state.currentQuestion.start : null;
-  //let to = state.currentQuestion ? state.currentQuestion.end : null;
+  let from = state.questions ? state.questions[state.questionNumber-1].start : null;
+  let to = state.questions ? state.questions[state.questionNumber-1].end : null;
+  let name = state.questions ? state.questions[state.questionNumber-1].name : null;
 
   return (
     <div className="App">
       <div className="content-container">
         {
-        !state.gameOver && !state.startScreen ?
+        state.pageIndex === pageIndex.IN_GAME ?
         <div className="game-container">
-          {state.questions ? <p>{state.questions[state.questionNumber-1].name}</p> : null }
-          {state.questions ? <p>{state.questions[state.questionNumber-1].start} - {state.questions[state.questionNumber-1].end}</p> : null }
+          <p>{name}</p>
+          <p>{from} - {to}</p>
           <form onSubmit={handleSubmit} className="input-form">
             <input type="text" name="numberInput" onChange={handleChange}></input>
             <input type="submit"></input>
@@ -149,17 +163,13 @@ function App() {
           <p className="alert-text">{ state.prevAnswer ? (state.prevAnswer+" is Incorrect. Try again.") : ""}</p>
         </div>
         : 
-        state.startScreen ? 
+        state.pageIndex === pageIndex.START_SCREEN  ? 
         <div>
           <h1>Welcome</h1>
           <button onClick={startGame}>Start Game</button>
         </div>
         : 
-        <div>
-          <h1>Finished</h1>
-          <h2>{state.finalScore} seconds</h2>
-          <button onClick={startGame}>New Game</button>
-        </div>
+        <GameOver startGame={startGame} finalScore={state.finalScore}/>
         
         }
       </div>
