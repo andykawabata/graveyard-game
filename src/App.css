@@ -19,6 +19,7 @@
   display: inline-block;
   font-size: 14px;
   margin-left: 4px;
+  -webkit-appearance: none;
 }
 
 #directions{
@@ -26,6 +27,11 @@
   max-width: 400px;
   margin: 0 auto 15px auto;
   text-align: left;
+}
+@media only screen and (max-width: 600px) {
+  #directions{
+    max-width: 88%;
+  }
 }
 
 .input-form{
@@ -46,7 +52,7 @@ input {
 
 #answerInput{
   display: block;
-  margin: 3px auto;
+  margin: 5px auto;
 }
 
 #clock{

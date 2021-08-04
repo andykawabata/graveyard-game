@@ -189,8 +189,8 @@ function App() {
         : 
         state.pageIndex === pageIndex.START_SCREEN  ? 
         <div>
-          <h1>Welcome</h1>
-          <p id="directions"><b>Directions: </b>You will be presented with 5 'headstones'. Calcualte how many years each person lived. Do it as quickly as you can!</p>
+          <h1>Graveyard Game</h1>
+          <p id="directions"><b>Directions: </b>You will be presented with 5 'headstones'. Determine how long each person lived. Do it as quickly as you can!</p>
           <button className="button" onClick={startGame}>Start Game</button>
           <LeaderBoard scores={currentScores}/>
         </div>
