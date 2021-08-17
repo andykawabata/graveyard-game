@@ -1,1 +1,1 @@
-A subtraction-based game.
+A subtraction-based graveyard game.
