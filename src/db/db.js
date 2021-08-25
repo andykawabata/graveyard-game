@@ -1,7 +1,9 @@
 import firebase from 'firebase';
 
+const FIREBASE_KEY = process.env.REACT_APP_FIREBASE_KEY
+
 var config = {
-    apiKey: "AIzaSyDebdYTrUI_sFxLFM_I0p62TFFh9CVFkXw",
+    apiKey: FIREBASE_KEY,
     authDomain: "graveyard-game-46d4d.firebaseapp.com",
     projectId: "graveyard-game-46d4d",
     storageBucket: "graveyard-game-46d4d.appspot.com",
